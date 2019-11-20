@@ -17,8 +17,8 @@ Make sure there is no blank line at the end of the file.
 That will create all the objects/object-groups needed for the ACLs
 
 ### Step 5
-`createACL.sh`
-that outputs to the screen all of the objects, and the lines to add to the ACLs  
+`createACL.sh`  
+the above scripts outputs to the screen all of the objects, and the lines to add to the ACLs  
 
 this can be redirected to a file to make it easier:  
 `createACL.sh > full_acl_output.txt`
