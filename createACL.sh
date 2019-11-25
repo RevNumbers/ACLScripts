@@ -18,7 +18,12 @@ for i in $(ls -1 inside_OBJs/DST* | awk -F"/" '{print $2}')
     SRCOBJECTNAME=$(echo $DSTOBJECTNAME | sed 's/DST/SRC/g')
     PROTOCOL=$(echo $DSTOBJECTNAME | awk -F"_" '{print $2}' | cut -c 1-3)
     PORT=$(echo $DSTOBJECTNAME | awk -F"_" '{print $2}' | cut -c 4-7)
-    echo "access-list inside_acl extended permit $PROTOCOL object-group $SRCOBJECTNAME object-group $DSTOBJECTNAME eq $PORT"
+    ACLENTRY=$(echo "access-list inside_acl extended permit $PROTOCOL object-group $SRCOBJECTNAME object-group $DSTOBJECTNAME eq $PORT")
+    EXISTINGACL=$(grep "$ACLENTRY" existingACL.txt >/dev/null 2>&1 && echo 1 || echo 0)
+    if [ $EXISTINGACL -ne 1 ]
+      then
+        echo $ACLENTRY
+    fi
 done
 
 echo
@@ -30,5 +35,10 @@ for o in $(ls -1 outside_OBJs/DST* | awk -F"/" '{print $2}')
     SRCOBJECTNAME=$(echo $DSTOBJECTNAME | sed 's/DST/SRC/g')
     PROTOCOL=$(echo $DSTOBJECTNAME | awk -F"_" '{print $2}' | cut -c 1-3)
     PORT=$(echo $DSTOBJECTNAME | awk -F"_" '{print $2}' | cut -c 4-7)
-    echo "access-list outside_acl extended permit $PROTOCOL object-group $SRCOBJECTNAME object-group $DSTOBJECTNAME eq $PORT"
+    ACLENTRY=$(echo "access-list outside_acl extended permit $PROTOCOL object-group $SRCOBJECTNAME object-group $DSTOBJECTNAME eq $PORT")
+    EXISTINGACL=$(grep "$ACLENTRY" existingACL.txt >/dev/null 2>&1 && echo 1 || echo 0)
+    if [ $EXISTINGACL -ne 1 ]
+      then
+        echo $ACLENTRY
+    fi
 done
