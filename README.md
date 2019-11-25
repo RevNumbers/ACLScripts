@@ -19,9 +19,8 @@ That will create all the objects/object-groups needed for the ACLs.
 ### Step 5
 copy the previous ACL list to `existingACL.txt`  
 
-The `createACL.sh` script will search this file for existing ACL entries  
-and only print new entries.  The object entries will remain, so we can add  
-to them.
+The `createACL.sh` script will search this file for existing ACL entries and only  
+print new entries.  The object entries will remain, so we can add to them.
 
 ### Step 6
 `createACL.sh`  
