@@ -112,7 +112,7 @@ cat $OUTFILET.txt | awk -F"(" '{print $1 " " $2 " " $3}' | sed 's/)//g' > $OUTFI
 ##########################################################
 
 
-
+cp $OUTFILE-temp2.txt $OUTFILE.txt
 echo "Splitting the large file into smaller ones in case we need them..."
 mkdir $INFILE-split
 cd $INFILE-split
@@ -153,16 +153,17 @@ echo
 # 7	dst port		"52311"
 
 
-echo "Doing some basic subnetting and removing lines"
-echo "with source ports higher than $HSRCPORT and"
-echo "destination ports higher than $HDSTPORT"
-# I don't remember why I'm excluding lines that begin is a 0... so I'll leave this here
-#subnet $OUTFILE.txt | grep -v "^0" | awk '{print $2,$3,$4,$5,$6}' > $OUTFILE-subnets.txt
+
 
 # High Source Port
 HIGHSRC=10000
 # High Destination Port
 HIGHDST=10000
+echo "Doing some basic subnetting and removing lines"
+echo "with source ports higher than $HSRCPORT and"
+echo "destination ports higher than $HDSTPORT"
+# I don't remember why I'm excluding lines that begin is a 0... so I'll leave this here
+  #subnet $OUTFILE.txt | grep -v "^0" | awk '{print $2,$3,$4,$5,$6}' > $OUTFILE-subnets.txt
 
 subnet $OUTFILE.txt $HIGHSRC $HIGHDST> $OUTFILE-subnets.txt
 
