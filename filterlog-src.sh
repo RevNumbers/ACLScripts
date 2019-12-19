@@ -1,18 +1,41 @@
 #!/bin/bash
 # Create a function that will do EXTREMELY basic /24 subnetting
+# Modified so it's a little easier to read/understand and handles the src port being left in
+
+#function subnet {
+#while read line
+#  do
+#   newline="$(echo -n $(echo $line | grep -oE '^[[:digit:]]{1,6}[[:blank:]][[:alpha:]]{6,7}_acl[[:blank:]][[:alpha:]]{3}[[:blank:]][[:alpha:]]{6,7}\/[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.'))"
+#   newline="$newline$(echo -n "0 ")"
+#   newline="$newline $(echo $line | awk '{print $5,$6}')"
+#   port="$(echo $newline | awk '{print $NF}')"
+#   secondoctet=$(echo $newline | awk -F"/" '{print $3}' | grep -oE '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.')
+#   newnewline="$(echo $newline | awk -F"/" '{print $1"/"$2"/"}')$secondoctet"
+#   newnewline="$(echo $newnewline)0 $port"
+#   echo $newnewline   
+#done < $1
+#}
+
 function subnet {
 while read line
-  do
-   newline="$(echo -n $(echo $line | grep -oE '^[[:digit:]]{1,6}[[:blank:]][[:alpha:]]{6,7}_acl[[:blank:]][[:alpha:]]{3}[[:blank:]][[:alpha:]]{6,7}\/[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.'))"
-   newline="$newline$(echo -n "0 ")"
-   newline="$newline $(echo $line | awk '{print $5,$6}')"
-   port="$(echo $newline | awk '{print $NF}')"
-   secondoctet=$(echo $newline | awk -F"/" '{print $3}' | grep -oE '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.')
-   newnewline="$(echo $newline | awk -F"/" '{print $1"/"$2"/"}')$secondoctet"
-   newnewline="$(echo $newnewline)0 $port"
-   echo $newnewline   
+ do
+  SACLNAME=$(echo $line | awk '{print $1}')
+  SPROTOCOL=$(echo $line | awk '{print $2}')
+  SSRCINT=$(echo $line | awk '{print $3}' | awk -F"/" '{print $1}')
+  SSRCIP=$(echo $line | awk '{print $3}' | awk -F"/" '{print $2}')
+  SSRCPORT=$(echo $line | awk '{print $4}')
+  SDSTINT=$(echo $line | awk '{print $5}' | awk -F"/" '{print $1}')
+  SDSTIP=$(echo $line | awk '{print $5}' | awk -F"/" '{print $2}')
+  SDSTPORT=$(echo $line | awk '{print $6}')
+  SSRCSUBNETT=$(echo $SSRCIP | egrep -oE '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.')
+  SSRCSUBNET=$(echo $SSRCSUBNETT$(echo "0"))
+  SDSTSUBNETT=$(echo $SDSTIP | egrep -oE '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.')
+  SDSTSUBNET=$(echo $SDSTSUBNETT$(echo "0"))
+  echo "$SACLNAME $SPROTOCOL $SSRCINT $SSRCSUBNET $SSRCPORT $SDSTINT $SDSTSUBNET $SDSTPORT"
 done < $1
 }
+
+
 # Set some variables
 INFILE=$(echo $1 | awk -F"." '{print $1}')
 OUTFILE=$INFILE-filtered
@@ -74,20 +97,12 @@ cat $OUTFILET.txt | awk -F"(" '{print $1 " " $2 " " $3}' | sed 's/)//g' > $OUTFI
 # 5     dst interface/IP	"inside/10.105.104.66"
 # 6	dst port		"52311"
 
-echo "Removing the source port..."
-echo "Sample output:"
-head -1 $OUTFILE-temp2.txt | awk '{print $1 " " $2 " " $3 " " $5 " " $6}'
-#head -1 $OUTFILE-temp2.txt | awk '{print $1 " " $2 " " $3 " " $5 " " $6}' | sed 's/\//\ /g'
-cat $OUTFILE-temp2.txt | awk '{print $1 " " $2 " " $3 " " $5 " " $6}' > $OUTFILE.txt
-#cat $OUTFILE-temp2.txt | awk '{print $1 " " $2 " " $3 " " $5 " " $6}' | sed 's/\//\ /g' > $OUTFILE.txt
 
-# Below are the fields in the current file:
-# Example line:  outside_acl tcp outside/10.0.4.146 inside/10.105.104.66 52311
-# 1     ACL name                "outside_acl"
-# 2     protocol                "tcp"
-# 3     src interface/IP        "outside/10.0.4.146"
-# 4     dst interface/IP        "inside/10.105.104.66"
-# 5     dst port                "52311"
+
+##########################################################
+##	Removed section where src port was stripped	##
+##########################################################
+
 
 
 echo "Splitting the large file into smaller ones in case we need them..."
@@ -118,6 +133,18 @@ echo -e "\nOriginal file contained $INFILELINECOUNT lines"
 echo "Filtered and sorted we got it down to $OUTFILELINECOUNT lines"  
 echo
 echo
+
+# Below are the fields in the current file:
+# Example line:  outside_acl tcp outside/10.0.4.146 54201 inside/10.105.104.66 52311
+# 1     ACL name                "outside_acl"
+# 2     protocol                "tcp"
+# 3     src interface/IP	"outside/10.0.4.146"
+# 4	src port		"54201"
+# 5     dst interface/IP	"inside/10.105.104.66"
+# 6	dst port		"52311"
+
+
+# Need to Modify to handle the source port correctly
 echo "Doing some basic subnetting..."
 subnet $OUTFILE.txt | grep -v "^0" | awk '{print $2,$3,$4,$5,$6}' > $OUTFILE-subnets.txt
 cat $OUTFILE-subnets.txt | sort | uniq -c | sort -n > $OUTFILE-subnets-count.txt
