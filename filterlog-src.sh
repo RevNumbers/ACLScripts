@@ -145,10 +145,18 @@ echo
 # 7	dst port		"52311"
 
 
-# Need to Modify to handle the source port correctly
-echo "Doing some basic subnetting..."
-subnet $OUTFILE.txt | grep -v "^0" | awk '{print $2,$3,$4,$5,$6}' > $OUTFILE-subnets.txt
+echo "Doing some basic subnetting and removing lines"
+echo "with source ports higher than $HSRCPORT and"
+echo "destination ports higher than $HDSTPORT"
+# I don't remember why I'm excluding lines that begin is a 0... so I'll leave this here
+#subnet $OUTFILE.txt | grep -v "^0" | awk '{print $2,$3,$4,$5,$6}' > $OUTFILE-subnets.txt
+
+subnet $OUTFILE.txt > $OUTFILE-subnets.txt
+
+# Sort and add a hit count
 cat $OUTFILE-subnets.txt | sort | uniq -c | sort -n > $OUTFILE-subnets-count.txt
+
+# Remove anything with a hitcount less than the Subnetted HIT COUNT variable (SHITCOUNT)
 while read line
   do
    # Get the Subnetted Hit Count
@@ -159,11 +167,20 @@ while read line
    fi
 done < $OUTFILE-subnets-count.txt
 
-echo "Sorting and removing lines with high port numbers..."
-cat $OUTFILE-subnets-count2.txt | sort | uniq > $OUTFILE-subnets-sort-uniq.txt
-cat $OUTFILE-subnets-sort-uniq.txt | grep -vE '\.0[[:blank:]][123456][[:digit:]][[:digit:]][[:digit:]][[:digit:]]$' > $OUTFILE-subnets-sort-uniq-nohigh.txt
-cat $OUTFILE-subnets-sort-uniq-nohigh.txt | grep -vE '\.0[[:blank:]][456789][[:digit:]][[:digit:]][[:digit:]]$' > $OUTFILE-subnets-sort-uniq-nohigh2.txt
-cat $OUTFILE-subnets-sort-uniq-nohigh2.txt | sed 's/\//\ /g' | awk '{print $2,$3,$4,$5,$6,$7,$8}' > $OUTFILE-forExcelImport.txt
+
+# Need to fix this to work with source ports... and make it a little more simple
+#echo "Sorting and removing lines with high port numbers..."
+#cat $OUTFILE-subnets-count2.txt | sort | uniq > $OUTFILE-subnets-sort-uniq.txt
+#cat $OUTFILE-subnets-sort-uniq.txt | grep -vE '\.0[[:blank:]][123456][[:digit:]][[:digit:]][[:digit:]][[:digit:]]$' > $OUTFILE-subnets-sort-uniq-nohigh.txt
+#cat $OUTFILE-subnets-sort-uniq-nohigh.txt | grep -vE '\.0[[:blank:]][456789][[:digit:]][[:digit:]][[:digit:]]$' > $OUTFILE-subnets-sort-uniq-nohigh2.txt
+#cat $OUTFILE-subnets-sort-uniq-nohigh2.txt | sed 's/\//\ /g' | awk '{print $2,$3,$4,$5,$6,$7,$8}' > $OUTFILE-forExcelImport.txt
+
+##########################################################
+##      Removing high port number matches moved to	##
+##			Subnet function			##
+##########################################################
+
+cp $OUTFILE-subnets-count2.txt $OUTFILE-forExcelImport.txt
 
 echo
 echo
