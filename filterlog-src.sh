@@ -17,6 +17,11 @@
 #}
 
 function subnet {
+# High Source Port
+HSRCPORT=$2
+# High Destination Port
+HDSTPORT=$3
+
 while read line
  do
   SACLNAME=$(echo $line | awk '{print $2}')
@@ -31,7 +36,10 @@ while read line
   SSRCSUBNET=$(echo $SSRCSUBNETT$(echo "0"))
   SDSTSUBNETT=$(echo $SDSTIP | egrep -oE '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.')
   SDSTSUBNET=$(echo $SDSTSUBNETT$(echo "0"))
-  echo "$SACLNAME $SPROTOCOL $SSRCINT $SSRCSUBNET $SSRCPORT $SDSTINT $SDSTSUBNET $SDSTPORT"
+  if [ $SSRCPORT -le $HSRCPORT ] || [ $SDSTPORT -le $HDSTPORT ]
+    then
+      echo "$SACLNAME $SPROTOCOL $SSRCINT $SSRCSUBNET $SSRCPORT $SDSTINT $SDSTSUBNET $SDSTPORT"
+  fi
 done < $1
 }
 
@@ -151,7 +159,12 @@ echo "destination ports higher than $HDSTPORT"
 # I don't remember why I'm excluding lines that begin is a 0... so I'll leave this here
 #subnet $OUTFILE.txt | grep -v "^0" | awk '{print $2,$3,$4,$5,$6}' > $OUTFILE-subnets.txt
 
-subnet $OUTFILE.txt > $OUTFILE-subnets.txt
+# High Source Port
+HIGHSRC=10000
+# High Destination Port
+HIGHDST=10000
+
+subnet $OUTFILE.txt $HIGHSRC $HIGHDST> $OUTFILE-subnets.txt
 
 # Sort and add a hit count
 cat $OUTFILE-subnets.txt | sort | uniq -c | sort -n > $OUTFILE-subnets-count.txt
