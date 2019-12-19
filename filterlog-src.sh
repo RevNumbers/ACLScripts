@@ -166,10 +166,13 @@ echo "destination ports higher than $HDSTPORT"
   #subnet $OUTFILE.txt | grep -v "^0" | awk '{print $2,$3,$4,$5,$6}' > $OUTFILE-subnets.txt
 
 subnet $OUTFILE.txt $HIGHSRC $HIGHDST> $OUTFILE-subnets.txt
-
+echo "Done..."
 # Sort and add a hit count
+echo
+echo "Sorting and adding a hit count..."
 cat $OUTFILE-subnets.txt | sort | uniq -c | sort -n > $OUTFILE-subnets-count.txt
 
+echo "Removing lines with a hit count less than 5..."
 # Remove anything with a hitcount less than the Subnetted HIT COUNT variable (SHITCOUNT)
 while read line
   do
