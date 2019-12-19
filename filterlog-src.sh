@@ -13,7 +13,6 @@ while read line
    echo $newnewline   
 done < $1
 }
-
 # Set some variables
 INFILE=$(echo $1 | awk -F"." '{print $1}')
 OUTFILE=$INFILE-filtered
@@ -24,10 +23,39 @@ ACLFILE=$INFILE-ACLs
 echo "Filtering the log for ACL hits..."
 cat $1 | grep "ASA-6-106100" > $ACLFILE
 
+# Below are the fields in the orginal file:
+# Example line:		Dec  7 22:59:59 VAL-CISCO-5525-P1 : %ASA-6-106100: access-list outside_acl permitted tcp outside/10.0.4.146(54201) -> inside/10.105.104.66(52311) hit-cnt 1 first hit [0xcbdec20f, 0x0196c5de]
+# 1	Month			"Dec"
+# 2	Day			"7"
+# 3	Timestamp		"22:59:59"
+# 4	Device			"VAL-CISCO-5525-P1"
+# 5	A colon...		":"
+# 6	MessageID		"%ASA-6-106100:"
+# 7	access-list		"access-list"
+# 8	ACL name		"outside_acl"
+# 9	what it did		"permitted"
+# 10	protocol		"tcp"
+# 11	src interface/IP(port)	"outside/10.0.4.146(54201)
+# 12	direction arrow		"->"
+# 13	dst interface/IP(port)	"inside/10.105.104.66(52311)
+# 14	hit-cnt			"hit-cnt"
+# 15	hit-cnt count		"1"
+# 16	first			"first"
+# 17	hit			"hit"
+# 18	hex identifier		"[0xcbdec20f,"
+# 19	hex identifier		"0x0196c5de]"
+
 echo "Filtering the log for fields we care about..."
 echo "Sample output:"
 head -1 $ACLFILE | awk '{print $8 " " $10 " " $11 " " $13}'
 cat $ACLFILE | awk '{print $8 " " $10 " " $11 " " $13}' > $OUTFILET.txt.tmp
+
+# Below are the fields in the current file:
+# Example line: outside_acl tcp outside/10.0.4.146(54201) inside/10.105.104.66(52311)
+# 1	ACL name                "outside_acl"
+# 2	protocol                "tcp"
+# 3	src interface/IP(port)  "outside/10.0.4.146(54201)
+# 4	dst interface/IP(port)  "inside/10.105.104.66(52311)
 
 echo "Removing all but TCP/UDP traffic..."
 cat $OUTFILET.txt.tmp | egrep 'tcp|udp' > $OUTFILET.txt
@@ -37,12 +65,30 @@ echo "Sample output:"
 head -1 $OUTFILET.txt | awk -F"(" '{print $1 " " $2 " " $3}' | sed 's/)//g'
 cat $OUTFILET.txt | awk -F"(" '{print $1 " " $2 " " $3}' | sed 's/)//g' > $OUTFILE-temp2.txt
 
-echo "Re-Filtering so it looks pretty..."
+# Below are the fields in the current file:
+# Example line:  outside_acl tcp outside/10.0.4.146 54201 inside/10.105.104.66 52311
+# 1     ACL name                "outside_acl"
+# 2     protocol                "tcp"
+# 3     src interface/IP	"outside/10.0.4.146"
+# 4	src port		"54201"
+# 5     dst interface/IP	"inside/10.105.104.66"
+# 6	dst port		"52311"
+
+echo "Removing the source port..."
 echo "Sample output:"
 head -1 $OUTFILE-temp2.txt | awk '{print $1 " " $2 " " $3 " " $5 " " $6}'
 #head -1 $OUTFILE-temp2.txt | awk '{print $1 " " $2 " " $3 " " $5 " " $6}' | sed 's/\//\ /g'
 cat $OUTFILE-temp2.txt | awk '{print $1 " " $2 " " $3 " " $5 " " $6}' > $OUTFILE.txt
 #cat $OUTFILE-temp2.txt | awk '{print $1 " " $2 " " $3 " " $5 " " $6}' | sed 's/\//\ /g' > $OUTFILE.txt
+
+# Below are the fields in the current file:
+# Example line:  outside_acl tcp outside/10.0.4.146 inside/10.105.104.66 52311
+# 1     ACL name                "outside_acl"
+# 2     protocol                "tcp"
+# 3     src interface/IP        "outside/10.0.4.146"
+# 4     dst interface/IP        "inside/10.105.104.66"
+# 5     dst port                "52311"
+
 
 echo "Splitting the large file into smaller ones in case we need them..."
 mkdir $INFILE-split
