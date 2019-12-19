@@ -19,14 +19,14 @@
 function subnet {
 while read line
  do
-  SACLNAME=$(echo $line | awk '{print $1}')
-  SPROTOCOL=$(echo $line | awk '{print $2}')
-  SSRCINT=$(echo $line | awk '{print $3}' | awk -F"/" '{print $1}')
-  SSRCIP=$(echo $line | awk '{print $3}' | awk -F"/" '{print $2}')
-  SSRCPORT=$(echo $line | awk '{print $4}')
-  SDSTINT=$(echo $line | awk '{print $5}' | awk -F"/" '{print $1}')
-  SDSTIP=$(echo $line | awk '{print $5}' | awk -F"/" '{print $2}')
-  SDSTPORT=$(echo $line | awk '{print $6}')
+  SACLNAME=$(echo $line | awk '{print $2}')
+  SPROTOCOL=$(echo $line | awk '{print $3}')
+  SSRCINT=$(echo $line | awk '{print $4}' | awk -F"/" '{print $1}')
+  SSRCIP=$(echo $line | awk '{print $4}' | awk -F"/" '{print $2}')
+  SSRCPORT=$(echo $line | awk '{print $5}')
+  SDSTINT=$(echo $line | awk '{print $6}' | awk -F"/" '{print $1}')
+  SDSTIP=$(echo $line | awk '{print $6}' | awk -F"/" '{print $2}')
+  SDSTPORT=$(echo $line | awk '{print $7}')
   SSRCSUBNETT=$(echo $SSRCIP | egrep -oE '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.')
   SSRCSUBNET=$(echo $SSRCSUBNETT$(echo "0"))
   SDSTSUBNETT=$(echo $SDSTIP | egrep -oE '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.')
@@ -135,13 +135,14 @@ echo
 echo
 
 # Below are the fields in the current file:
-# Example line:  outside_acl tcp outside/10.0.4.146 54201 inside/10.105.104.66 52311
-# 1     ACL name                "outside_acl"
-# 2     protocol                "tcp"
-# 3     src interface/IP	"outside/10.0.4.146"
-# 4	src port		"54201"
-# 5     dst interface/IP	"inside/10.105.104.66"
-# 6	dst port		"52311"
+# Example line:        1 outside_acl tcp outside/10.0.4.146 54201 inside/10.105.104.66 52311
+# 1	Number of hits/lines	"1"
+# 2     ACL name                "outside_acl"
+# 3     protocol                "tcp"
+# 4     src interface/IP	"outside/10.0.4.146"
+# 5	src port		"54201"
+# 6     dst interface/IP	"inside/10.105.104.66"
+# 7	dst port		"52311"
 
 
 # Need to Modify to handle the source port correctly
