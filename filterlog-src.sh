@@ -16,7 +16,7 @@
 #done < $1
 #}
 
-function subnet {
+function subnetHighPorts {
 # High Source Port
 HSRCPORT=$2
 # High Destination Port
@@ -43,6 +43,53 @@ while read line
 done < $1
 }
 
+function subnetStripSrcPort {
+# High Source Port
+HSRCPORT=$2
+# High Destination Port
+HDSTPORT=$3
+
+while read line
+ do
+  SACLNAME=$(echo $line | awk '{print $2}')
+  SPROTOCOL=$(echo $line | awk '{print $3}')
+  SSRCINT=$(echo $line | awk '{print $4}' | awk -F"/" '{print $1}')
+  SSRCIP=$(echo $line | awk '{print $4}' | awk -F"/" '{print $2}')
+  SSRCPORT=$(echo $line | awk '{print $5}')
+  SDSTINT=$(echo $line | awk '{print $6}' | awk -F"/" '{print $1}')
+  SDSTIP=$(echo $line | awk '{print $6}' | awk -F"/" '{print $2}')
+  SDSTPORT=$(echo $line | awk '{print $7}')
+  SSRCSUBNETT=$(echo $SSRCIP | egrep -oE '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.')
+  SSRCSUBNET=$(echo $SSRCSUBNETT$(echo "0"))
+  SDSTSUBNETT=$(echo $SDSTIP | egrep -oE '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.')
+  SDSTSUBNET=$(echo $SDSTSUBNETT$(echo "0"))
+  echo "$SACLNAME $SPROTOCOL $SSRCINT $SSRCSUBNET $SDSTINT $SDSTSUBNET $SDSTPORT"
+done < $1
+}
+
+function subnetStripDstPort {
+# High Source Port
+HSRCPORT=$2
+# High Destination Port
+HDSTPORT=$3
+
+while read line
+ do
+  SACLNAME=$(echo $line | awk '{print $2}')
+  SPROTOCOL=$(echo $line | awk '{print $3}')
+  SSRCINT=$(echo $line | awk '{print $4}' | awk -F"/" '{print $1}')
+  SSRCIP=$(echo $line | awk '{print $4}' | awk -F"/" '{print $2}')
+  SSRCPORT=$(echo $line | awk '{print $5}')
+  SDSTINT=$(echo $line | awk '{print $6}' | awk -F"/" '{print $1}')
+  SDSTIP=$(echo $line | awk '{print $6}' | awk -F"/" '{print $2}')
+  SDSTPORT=$(echo $line | awk '{print $7}')
+  SSRCSUBNETT=$(echo $SSRCIP | egrep -oE '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.')
+  SSRCSUBNET=$(echo $SSRCSUBNETT$(echo "0"))
+  SDSTSUBNETT=$(echo $SDSTIP | egrep -oE '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.')
+  SDSTSUBNET=$(echo $SDSTSUBNETT$(echo "0"))
+  echo "$SACLNAME $SPROTOCOL $SSRCINT $SSRCSUBNET $SSRCPORT $SDSTINT $SDSTSUBNET"
+done < $1
+}
 
 # Set some variables
 INFILE=$(echo $1 | awk -F"." '{print $1}')
@@ -165,24 +212,31 @@ echo "destination ports higher than $HDSTPORT"
 # I don't remember why I'm excluding lines that begin is a 0... so I'll leave this here
   #subnet $OUTFILE.txt | grep -v "^0" | awk '{print $2,$3,$4,$5,$6}' > $OUTFILE-subnets.txt
 
-subnet $OUTFILE.txt $HIGHSRC $HIGHDST> $OUTFILE-subnets.txt
+
+#subnet $OUTFILE.txt $HIGHSRC $HIGHDST> $OUTFILE-subnets.txt
+
+subnetStripDstPort $OUTFILE.txt > $OUTFILE-subnetsNoDst.txt
+subnetStripSrcPort $OUTFILE.txt > $OUTFILE-subnetsNoSrc.txt
+
 echo "Done..."
 # Sort and add a hit count
 echo
 echo "Sorting and adding a hit count..."
-cat $OUTFILE-subnets.txt | sort | uniq -c | sort -n > $OUTFILE-subnets-count.txt
+#cat $OUTFILE-subnets.txt | sort | uniq -c | sort -n > $OUTFILE-subnets-count.txt
+cat $OUTFILE-subnetsNoDst.txt | sort | uniq -c | sort -n > $OUTFILE-subnetsNoDst-count.txt
+cat $OUTFILE-subnetsNoSrc.txt | sort | uniq -c | sort -n > $OUTFILE-subnetsNoSrc-count.txt
 
 echo "Removing lines with a hit count less than 5..."
 # Remove anything with a hitcount less than the Subnetted HIT COUNT variable (SHITCOUNT)
-while read line
-  do
-   # Get the Subnetted Hit Count
-   SHITCOUNT=$(echo $line | awk '{print $1}')
-   if [ $SHITCOUNT -ge 5 ]
-     then
-       echo $line >> $OUTFILE-subnets-count2.txt
-   fi
-done < $OUTFILE-subnets-count.txt
+#while read line
+#  do
+#   # Get the Subnetted Hit Count
+#   SHITCOUNT=$(echo $line | awk '{print $1}')
+#   if [ $SHITCOUNT -ge 5 ]
+#     then
+#       echo $line >> $OUTFILE-subnets-count2.txt
+#   fi
+#done < $OUTFILE-subnets-count.txt
 
 
 # Need to fix this to work with source ports... and make it a little more simple
@@ -197,7 +251,7 @@ done < $OUTFILE-subnets-count.txt
 ##			Subnet function			##
 ##########################################################
 
-cp $OUTFILE-subnets-count2.txt $OUTFILE-forExcelImport.txt
+#cp $OUTFILE-subnets-count2.txt $OUTFILE-forExcelImport.txt
 
 echo
 echo
