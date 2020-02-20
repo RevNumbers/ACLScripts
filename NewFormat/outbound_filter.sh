@@ -5,9 +5,9 @@
 
 # Example filtered log input:
 #
-# outbound     outside     10.24.11.35     135     inside     10.105.104.10     52149
-#    ^            ^             ^           ^        ^              ^             ^
-# direction    dst_int       dst_ip     dst_port   src_int        src_ip       src_port
+# outbound     outside     10.24.11.35     135     inside     10.105.104.10     52149       tcp
+#    ^            ^             ^           ^        ^              ^             ^          ^
+# direction    dst_int       dst_ip     dst_port   src_int        src_ip       src_port   protocol
 
 #Array Assignments:
 # 0	-	Direction
@@ -17,6 +17,7 @@
 # 4	-	Source Interface
 # 5	-	Source IP
 # 6	-	Source Port
+# 7	-	TCP/UDP
 
 function acl_output () {
   # define an array with the current line
@@ -34,5 +35,5 @@ while read -r line
   do
   # define an array with the current line
   logline=($(echo $line))
-  echo "${logline[4]} $(subnet ${logline[5]}) ${logline[1]} $(subnet ${logline[2]}) ${logline[3]}"
+  echo "${logline[7]} ${logline[4]} $(subnet ${logline[5]}) ${logline[1]} $(subnet ${logline[2]}) ${logline[3]}"
 done < $1
