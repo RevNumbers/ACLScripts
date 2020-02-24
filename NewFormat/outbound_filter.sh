@@ -36,4 +36,7 @@ while read -r line
   # define an array with the current line
   logline=($(echo $line))
   echo "${logline[7]} ${logline[4]} $(subnet ${logline[5]}) ${logline[1]} $(subnet ${logline[2]}) ${logline[3]}"
-done < $1
+done < $1 > outbound_traffic.txt
+
+sort outbound_traffic.txt -o outbound_traffic-sorted.txt
+uniq outbound_traffic-sorted.txt outbound_traffic-sorted-uniq.txt
