@@ -11,8 +11,8 @@ grep 'ASA-6-302015' VAL-CISCO-5525-P1 | awk '{print $8,$13,$14,$16,$17}' | awk -
 
 
 # Put outbound and inbound in their own files
-# Also only use "real" Src/Dst for inbound
-# Use NAT'd Src/Dst for outbound
+# Also only use "real" Src/Dst for outbound
+# Use NAT'd Src/Dst for inbound
 grep ^outbound VAL-CISCO-5525-P1-inout | awk '{print $1,$2,$3,$4,$7,$8,$9,$12}' > VAL-CISCO-5525-P1-outbound
 grep ^inbound VAL-CISCO-5525-P1-inout | awk '{print $1,$2,$5,$6,$7,$10,$11,$12}' > VAL-CISCO-5525-P1-inbound
 
