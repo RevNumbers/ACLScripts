@@ -14,7 +14,10 @@ grep 'ASA-6-302015' VAL-CISCO-5525-P1 | awk '{print $8,$13,$14,$16,$17}' | awk -
 # Also only use "real" Src/Dst for outbound
 # Use NAT'd Src/Dst for inbound
 grep ^outbound VAL-CISCO-5525-P1-inout | awk '{print $1,$2,$3,$4,$7,$8,$9,$12}' > VAL-CISCO-5525-P1-outbound
-grep ^inbound VAL-CISCO-5525-P1-inout | awk '{print $1,$2,$5,$6,$7,$10,$11,$12}' > VAL-CISCO-5525-P1-inbound
+
+# It looks like cisco documentation is wrong, so the same fields should be used for both in and out
+#grep ^inbound VAL-CISCO-5525-P1-inout | awk '{print $1,$2,$5,$6,$7,$10,$11,$12}' > VAL-CISCO-5525-P1-inbound
+grep ^inbound VAL-CISCO-5525-P1-inout | awk '{print $1,$2,$3,$4,$7,$8,$9,$12}' > VAL-CISCO-5525-P1-inbound
 
 # Sort it all
 sort VAL-CISCO-5525-P1-outbound -o VAL-CISCO-5525-P1-outbound-sorted
