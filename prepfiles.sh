@@ -20,6 +20,10 @@ grep ^inbound VAL-CISCO-5525-P1-inout | awk '{print $1,$2,$5,$6,$7,$10,$11,$12}'
 sort VAL-CISCO-5525-P1-outbound -o VAL-CISCO-5525-P1-outbound-sorted
 sort VAL-CISCO-5525-P1-inbound -o VAL-CISCO-5525-P1-inbound-sorted
 
+# remove "identity" lines
+cat VAL-CISCO-5525-P1-outbound-sorted | grep -v identity > VAL-CISCO-5525-P1-outbound-sorted-noident
+cat VAL-CISCO-5525-P1-inbound-sorted | grep -v identity > VAL-CISCO-5525-P1-inbound-sorted-noident
+
 # Make sure it's uniq
-uniq VAL-CISCO-5525-P1-outbound-sorted VAL-CISCO-5525-P1-outbound-sorted-uniq
-uniq VAL-CISCO-5525-P1-inbound-sorted VAL-CISCO-5525-P1-inbound-sorted-uniq
+uniq VAL-CISCO-5525-P1-outbound-sorted-noident VAL-CISCO-5525-P1-outbound-sorted-uniq
+uniq VAL-CISCO-5525-P1-inbound-sorted-noident VAL-CISCO-5525-P1-inbound-sorted-uniq
