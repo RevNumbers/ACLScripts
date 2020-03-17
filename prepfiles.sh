@@ -7,7 +7,7 @@
 # Had to modify slightly to use the NAT'd Src/Dst for inbound traffic
 # This grabs both real and NAT'd colums, then we filter it out a little later
 grep 'ASA-6-302013' VAL-CISCO-5525-P1 | awk '{print $8,$13,$14,$16,$17}' | awk -F":" '{print $1,$2,$3}' | awk -F"/" '{print $1,$2,$3,$4,$5" tcp"}' | sed 's/[(]//g' | sed 's/[)]//g' > VAL-CISCO-5525-P1-inout
-grep 'ASA-6-302015' VAL-CISCO-5525-P1 | awk '{print $8,$13,$14,$16,$17}' | awk -F":" '{print $1,$2,$3}' | awk -F"/" '{print $1,$2,$3,$4,$5" tcp"}' | sed 's/[(]//g' | sed 's/[)]//g' >> VAL-CISCO-5525-P1-inout
+grep 'ASA-6-302015' VAL-CISCO-5525-P1 | awk '{print $8,$13,$14,$16,$17}' | awk -F":" '{print $1,$2,$3}' | awk -F"/" '{print $1,$2,$3,$4,$5" udp"}' | sed 's/[(]//g' | sed 's/[)]//g' >> VAL-CISCO-5525-P1-inout
 
 
 # Put outbound and inbound in their own files
