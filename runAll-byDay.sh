@@ -2,6 +2,7 @@
 for i in *
   do
     cd $i
+	echo "Running scripts against logs for $(date +"%B %d, %Y" -d $(echo $i | cut -c 35-))"
 	echo "Running prepfiles.sh in $PWD"
 	./prepfiles.sh
 	echo "Running outbound_filter in $PWD"
@@ -12,4 +13,7 @@ for i in *
 	./find_objects_outbound.sh outbound_traffic-sorted-uniq.txt
 	echo "Running find_objects_inbound.sh in $PWD"
 	./find_objects_inbound.sh inbound_traffic-sorted-uniq.txt
+        echo "Finished parsing logs for $(date +"%B %d, %Y" -d $(echo $i | cut -c 35-))"
+	echo
+	cd ..
 done
