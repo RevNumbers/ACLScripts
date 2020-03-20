@@ -116,7 +116,7 @@ function destination_match
 
         if test -n ${DMATCHSUB24A[0]}
           then
-            unset DMATCH8ARR
+            unset DMATCH24ARR
             for file in ${DMATCHSUB24A[@]}
               do
                 if [[ $(grep -w $CLASS24 outbound_OBJs/$file | awk '{print $3}') =~ "255.255.255.0" ]]
