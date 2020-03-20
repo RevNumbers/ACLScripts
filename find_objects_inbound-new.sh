@@ -27,7 +27,7 @@ function source_match
 
         if test -n ${SMATCHSUB24A[0]}
           then
-            unset SMATCH8ARR
+            unset SMATCH24ARR
             for file in ${SMATCHSUB24A[@]}
               do
                 if [[ $(grep -w $CLASS24 inbound_OBJs_src/$file | awk '{print $3}') =~ "255.255.255.0" ]]

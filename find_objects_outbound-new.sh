@@ -27,7 +27,7 @@ function source_match
 		
         if test -n ${SMATCHSUB24A[0]}
           then
-	    unset SMATCH8ARR
+	    unset SMATCH24ARR
             for file in ${SMATCHSUB24A[@]}
               do
 		if [[ $(grep -w $CLASS24 outbound_OBJs_src/$file | awk '{print $3}') =~ "255.255.255.0" ]]
@@ -322,8 +322,13 @@ done < inside_acl
       then
         echo "TRAFFIC DID NOT MATCH ACL"
       else
-      echo "Adding \"service $(echo $DMATCH2 | awk '{print $1}') destination eq $(echo $DMATCH2 | awk '{print $2}')\" to outbound_service_OBJs/$(echo $ACLMATCH2 | awk '{print $NF}')-ServiceOBJ"
-      echo "service $(echo $DMATCH2 | awk '{print $1}') destination eq $(echo $DMATCH2 | awk '{print $2}')" >> outbound_service_OBJs/$(echo $ACLMATCH2 | awk '{print $NF}')-ServiceOBJ
+      ACLMATCHD=$(echo $ACLMATCH2 | awk '{print $NF}')
+      if [[ "$ACLMATCHD" =~ "255" ]]
+        then
+          ACLMATCHD=$(echo $ACLMATCH2 | awk '{print $8}')
+      fi
+      echo "Adding \"service $(echo $DMATCH2 | awk '{print $1}') destination eq $(echo $DMATCH2 | awk '{print $2}')\" to outbound_service_OBJs/$(echo $ACLMATCHD)-ServiceOBJ"
+      echo "service $(echo $DMATCH2 | awk '{print $1}') destination eq $(echo $DMATCH2 | awk '{print $2}')" >> outbound_service_OBJs/$(echo $ACLMATCHD)-ServiceOBJ
     fi
      echo "================================================"
 done < $1
